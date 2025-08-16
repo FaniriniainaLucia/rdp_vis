@@ -4,28 +4,28 @@ import './App.css';
 const PetriNetNFC = () => {
   // État initial des places
   const initialPlaces = {
-    P1: { id: 'P1', name: 'Attente badge', tokens: 1, x: 100, y: 100 },
-    P2: { id: 'P2', name: 'Badge scanné', tokens: 0, x: 300, y: 100 },
-    P3: { id: 'P3', name: 'Badge valide', tokens: 0, x: 500, y: 50 },
-    P4: { id: 'P4', name: 'Badge invalide', tokens: 0, x: 500, y: 150 },
-    P5: { id: 'P5', name: 'Porte fermée', tokens: 1, x: 100, y: 200 },
-    P6: { id: 'P6', name: 'Porte ouverte', tokens: 0, x: 700, y: 50 },
-    P7: { id: 'P7', name: 'Timer actif', tokens: 0, x: 700, y: 150 },
-    P8: { id: 'P8', name: 'Accès refusé', tokens: 0, x: 500, y: 250 },
-    P9: { id: 'P9', name: 'Passage détecté', tokens: 0, x: 700, y: 250 }
+    P1: { id: 'P1', name: 'Attente badge', tokens: 1, x: 350, y: 50 },
+    P2: { id: 'P2', name: 'Badge scanné', tokens: 0, x: 350, y: 150 },
+    P3: { id: 'P3', name: 'Badge valide', tokens: 0, x: 250, y: 250 },
+    P4: { id: 'P4', name: 'Badge invalide', tokens: 0, x: 450, y: 250 },
+    P5: { id: 'P5', name: 'Porte fermée', tokens: 1, x: 150, y: 350 },
+    P6: { id: 'P6', name: 'Porte ouverte', tokens: 0, x: 250, y: 450 },
+    P7: { id: 'P7', name: 'Timer actif', tokens: 0, x: 350, y: 450 },
+    P8: { id: 'P8', name: 'Accès refusé', tokens: 0, x: 450, y: 350 },
+    P9: { id: 'P9', name: 'Passage détecté', tokens: 0, x: 250, y: 550 }
   };
 
   const transitions = {
-    T1: { id: 'T1', name: 'Scanner badge', x: 200, y: 100 },
-    T2: { id: 'T2', name: 'Valider badge', x: 400, y: 50 },
-    T3: { id: 'T3', name: 'Rejeter badge', x: 400, y: 150 },
-    T4: { id: 'T4', name: 'Ouvrir porte', x: 600, y: 50 },
-    T5: { id: 'T5', name: 'Signal refus', x: 400, y: 250 },
-    T6: { id: 'T6', name: 'Démarrer timer', x: 600, y: 150 },
-    T7: { id: 'T7', name: 'Détecter passage', x: 600, y: 250 },
-    T8: { id: 'T8', name: 'Fermer (timeout)', x: 500, y: 300 },
-    T9: { id: 'T9', name: 'Fermer après passage', x: 400, y: 300 },
-    T10: { id: 'T10', name: 'Reset refus', x: 200, y: 250 }
+    T1: { id: 'T1', name: 'Scanner badge', x: 350, y: 100 },
+    T2: { id: 'T2', name: 'Valider badge', x: 250, y: 200 },
+    T3: { id: 'T3', name: 'Rejeter badge', x: 450, y: 200 },
+    T4: { id: 'T4', name: 'Ouvrir porte', x: 200, y: 400 },
+    T5: { id: 'T5', name: 'Signal refus', x: 450, y: 300 },
+    T6: { id: 'T6', name: 'Démarrer timer', x: 300, y: 400 },
+    T7: { id: 'T7', name: 'Détecter passage', x: 250, y: 500 },
+    T8: { id: 'T8', name: 'Fermer (timeout)', x: 100, y: 500 },
+    T9: { id: 'T9', name: 'Fermer après passage', x: 200, y: 600 },
+    T10: { id: 'T10', name: 'Reset refus', x: 350, y: 300 }
   };
 
   // Matrices Pre et Post
