@@ -407,54 +407,61 @@ const Arc = ({ from, to }) => {
       <div className="container">
         <div className="left-panel">
           <h3>Visualisation du Réseau</h3>
-          <div 
-            className="petri-network "
-            style={{ position: 'relative', cursor: draggedElement ? 'grabbing' : 'default' ,minHeight: '100vh',height: '100%'}}
-            onMouseMove={(e) => {
-              if (!draggedElement) return;
+          <div className="network-container">
+            <div 
+              className="petri-network"
+              style={{ 
+                position: 'relative',
+                width: '100%',
+                height: '700px',
+                cursor: draggedElement ? 'grabbing' : 'default',
+                overflow: 'hidden'
+              }}
+              onMouseMove={(e) => {
+                if (!draggedElement) return;
+                
+                const rect = e.currentTarget.getBoundingClientRect();
+                const newX = e.clientX - rect.left - dragOffset.x;
+                const newY = e.clientY - rect.top - dragOffset.y;
+                
+                if (draggedElement.type === 'place') {
+                  setPlaces(prev => ({
+                    ...prev,
+                    [draggedElement.id]: {
+                      ...prev[draggedElement.id],
+                      x: Math.max(0, Math.min(newX, rect.width - 80)),
+                      y: Math.max(0, Math.min(newY, rect.height - 50))
+                    }
+                  }));
+                } else {
+                  transitions[draggedElement.id].x = Math.max(0, Math.min(newX, rect.width - 80));
+                  transitions[draggedElement.id].y = Math.max(0, Math.min(newY, rect.height - 50));
+                }
+              }}
+              onMouseUp={() => {
+                setDraggedElement(null);
+              }}
+              onMouseLeave={() => {
+                setDraggedElement(null);
+              }}
+            >
+              <svg width="100%" height="100%" className="network-svg">
+                {/* Rendu des arcs en premier (arrière-plan) */}
+                {arcs.map((arc, index) => (
+                  <Arc key={index} from={arc.from} to={arc.to} />
+                ))}
+              </svg>
               
-              const rect = e.currentTarget.getBoundingClientRect();
-              const newX = e.clientX - rect.left - dragOffset.x;
-              const newY = e.clientY - rect.top - dragOffset.y;
-              
-              if (draggedElement.type === 'place') {
-                setPlaces(prev => ({
-                  ...prev,
-                  [draggedElement.id]: {
-                    ...prev[draggedElement.id],
-                    x: Math.max(0, Math.min(newX, 720)),
-                    y: Math.max(0, Math.min(newY, 350))
-                  }
-                }));
-              } else {
-                // Pour les transitions, on modifie directement l'objet
-                transitions[draggedElement.id].x = Math.max(0, Math.min(newX, 720));
-                transitions[draggedElement.id].y = Math.max(0, Math.min(newY, 370));
-              }
-            }}
-            onMouseUp={() => {
-              setDraggedElement(null);
-            }}
-            onMouseLeave={() => {
-              setDraggedElement(null);
-            }}
-          >
-            <svg width="800" height="400" className="network-svg">
-              {/* Rendu des arcs en premier (arrière-plan) */}
-              {arcs.map((arc, index) => (
-                <Arc key={index} from={arc.from} to={arc.to} />
+              {/* Rendu des places */}
+              {Object.values(places).map(place => (
+                <Place key={place.id} place={place} />
               ))}
-            </svg>
-            
-            {/* Rendu des places */}
-            {Object.values(places).map(place => (
-              <Place key={place.id} place={place} />
-            ))}
-            
-            {/* Rendu des transitions */}
-            {Object.values(transitions).map(transition => (
-              <Transition key={transition.id} transition={transition} />
-            ))}
+              
+              {/* Rendu des transitions */}
+              {Object.values(transitions).map(transition => (
+                <Transition key={transition.id} transition={transition} />
+              ))}
+            </div>
           </div>
         </div>
         
