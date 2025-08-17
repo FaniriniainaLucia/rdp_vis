@@ -76,6 +76,8 @@ const PetriNetNFC = () => {
   const [log, setLog] = useState(['Système initialisé - En attente...']);
   const [showManualControls, setShowManualControls] = useState(true);
   const [animatingTransition, setAnimatingTransition] = useState(null);
+  const [draggedElement, setDraggedElement] = useState(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const autoInterval = useRef(null);
 
@@ -199,41 +201,77 @@ const PetriNetNFC = () => {
   };
 
   // Composant Place
-  const Place = ({ place }) => (
-    <div
-      className={`place ${place.tokens > 0 ? 'active' : ''}`}
-      style={{
-        left: place.x,
-        top: place.y,
-        backgroundColor: place.tokens > 0 ? '#90EE90' : '#FFB6C1',
-        transform: place.tokens > 0 ? 'scale(1.1)' : 'scale(1)'
-      }}
-    >
-      <div className="place-id">{place.id}</div>
-      <div className="place-name">{place.name}</div>
-      <div className="tokens">
-        {place.tokens > 0 && (
-          <span className="token-count">●{place.tokens}</span>
-        )}
+  const Place = ({ place }) => {
+    const handleMouseDown = (e) => {
+      if (e.button !== 0) return; // Seulement clic gauche
+      const rect = e.currentTarget.getBoundingClientRect();
+      const networkRect = e.currentTarget.parentElement.getBoundingClientRect();
+      setDraggedElement({ type: 'place', id: place.id });
+      setDragOffset({
+        x: e.clientX - networkRect.left - place.x,
+        y: e.clientY - networkRect.top - place.y
+      });
+    };
+
+    return (
+      <div
+        className={`place ${place.tokens > 0 ? 'active' : ''}`}
+        style={{
+          position: 'absolute',
+          left: place.x,
+          top: place.y,
+          backgroundColor: place.tokens > 0 ? '#90EE90' : '#FFB6C1',
+          transform: place.tokens > 0 ? 'scale(1.1)' : 'scale(1)',
+          cursor: 'move',
+          userSelect: 'none'
+        }}
+        onMouseDown={handleMouseDown}
+      >
+        <div className="place-id">{place.id}</div>
+        <div className="place-name">{place.name}</div>
+        <div className="tokens">
+          {place.tokens > 0 && (
+            <span className="token-count">●{place.tokens}</span>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Composant Transition
   const Transition = ({ transition }) => {
     const enabled = isTransitionEnabled(transition.id);
     const isAnimating = animatingTransition === transition.id;
     
+    const handleMouseDown = (e) => {
+      if (e.button !== 0) return; // Seulement clic gauche
+      e.stopPropagation();
+      const networkRect = e.currentTarget.parentElement.getBoundingClientRect();
+      setDraggedElement({ type: 'transition', id: transition.id });
+      setDragOffset({
+        x: e.clientX - networkRect.left - transition.x,
+        y: e.clientY - networkRect.top - transition.y
+      });
+    };
+
+    const handleClick = (e) => {
+      if (draggedElement) return; // Ne pas déclencher si on vient de déplacer
+      if (enabled) fireTransition(transition.id);
+    };
+    
     return (
       <div
         className={`transition ${enabled ? 'enabled' : 'disabled'} ${isAnimating ? 'firing' : ''}`}
         style={{
+          position: 'absolute',
           left: transition.x,
           top: transition.y,
           backgroundColor: enabled ? '#FFD700' : '#D3D3D3',
-          cursor: enabled ? 'pointer' : 'default'
+          cursor: 'move',
+          userSelect: 'none'
         }}
-        onClick={() => enabled && fireTransition(transition.id)}
+        onMouseDown={handleMouseDown}
+        onClick={handleClick}
       >
         <div className="transition-id">{transition.id}</div>
         <div className="transition-name">{transition.name}</div>
@@ -369,7 +407,38 @@ const Arc = ({ from, to }) => {
       <div className="container">
         <div className="left-panel">
           <h3>Visualisation du Réseau</h3>
-          <div className="petri-network">
+          <div 
+            className="petri-network "
+            style={{ position: 'relative', cursor: draggedElement ? 'grabbing' : 'default' ,minHeight: '100vh'}}
+            onMouseMove={(e) => {
+              if (!draggedElement) return;
+              
+              const rect = e.currentTarget.getBoundingClientRect();
+              const newX = e.clientX - rect.left - dragOffset.x;
+              const newY = e.clientY - rect.top - dragOffset.y;
+              
+              if (draggedElement.type === 'place') {
+                setPlaces(prev => ({
+                  ...prev,
+                  [draggedElement.id]: {
+                    ...prev[draggedElement.id],
+                    x: Math.max(0, Math.min(newX, 720)),
+                    y: Math.max(0, Math.min(newY, 350))
+                  }
+                }));
+              } else {
+                // Pour les transitions, on modifie directement l'objet
+                transitions[draggedElement.id].x = Math.max(0, Math.min(newX, 720));
+                transitions[draggedElement.id].y = Math.max(0, Math.min(newY, 370));
+              }
+            }}
+            onMouseUp={() => {
+              setDraggedElement(null);
+            }}
+            onMouseLeave={() => {
+              setDraggedElement(null);
+            }}
+          >
             <svg width="800" height="400" className="network-svg">
               {/* Rendu des arcs en premier (arrière-plan) */}
               {arcs.map((arc, index) => (
