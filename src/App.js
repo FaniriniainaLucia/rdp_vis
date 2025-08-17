@@ -409,7 +409,7 @@ const Arc = ({ from, to }) => {
           <h3>Visualisation du Réseau</h3>
           <div 
             className="petri-network "
-            style={{ position: 'relative', cursor: draggedElement ? 'grabbing' : 'default' ,minHeight: '100vh'}}
+            style={{ position: 'relative', cursor: draggedElement ? 'grabbing' : 'default' ,minHeight: '100vh',height: '100%'}}
             onMouseMove={(e) => {
               if (!draggedElement) return;
               
